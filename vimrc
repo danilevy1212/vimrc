@@ -62,6 +62,9 @@ Plug 'tpope/vim-eunuch'
 " Adds :Gsearch and :wall command for in proyect editing
 Plug 'skwp/greplace.vim'
 
+" Git diff within the buffer
+Plug 'airblade/vim-gitgutter'
+
 "" Initialize plugin system
 call plug#end()
 
@@ -153,6 +156,9 @@ set hlsearch
 
 " Activate rainbow delimeters
 let g:rainbow_active=1 
+
+" Git Gutter Higher refresh rate
+set updatetime=250
 
 """ gvim only
 if has('gui')
