@@ -62,6 +62,9 @@ Plug 'tpope/vim-eunuch'
 " Adds :Gsearch and :wall command for in proyect editing
 Plug 'skwp/greplace.vim'
 
+" Git diff within the buffer
+Plug 'airblade/vim-gitgutter'
+
 "" Initialize plugin system
 call plug#end()
 
