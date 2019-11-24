@@ -109,8 +109,10 @@ set tabstop=4
 
 " Use ag for Gsearch 
 set grepprg=ag
-
 let g:grep_cmd_opts = '--line-numbers --noheading'
+
+" augment the default foldtext() with an indicator of whether the folded lines have been changed.
+set foldtext=gitgutter#fold#foldtext()
 
 """ Key Bindings
 " Space as leader key
@@ -136,6 +138,27 @@ xmap t <Plug>Sneak_t
 xmap T <Plug>Sneak_T
 omap t <Plug>Sneak_t
 omap T <Plug>Sneak_T
+
+"" vim-gitgutter
+" Remove default keybindings
+let g:gitgutter_map_keys = 0
+
+" Jump to hunks
+nmap ]h <Plug>(GitGutterNextHunk)
+nmap [h <Plug>(GitGutterPrevHunk)
+
+" Hunk text objects
+omap ih <Plug>(GitGutterTextObjectInnerPending)
+omap ah <Plug>(GitGutterTextObjectOuterPending)
+xmap ih <Plug>(GitGutterTextObjectInnerVisual)
+xmap ah <Plug>(GitGutterTextObjectOuterVisual)
+
+" g-based hunk staging/unstaging
+nmap ghs <Plug>(GitGutterStageHunk)
+nmap ghu <Plug>(GitGutterUndoHunk)
+
+" g-based hunk previews
+nmap ghp <Plug>(GitGutterPreviewHunk)
 
 """ Presentation
 " 24-bit color
