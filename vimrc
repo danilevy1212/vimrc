@@ -161,12 +161,15 @@ let g:rainbow_active=1
 set updatetime=250
 
 """ gvim only
-if has('gui')
-        " menu bar
-        set guioptions-=m
-        " toolbar
-        set guioptions-=T
-        " scrollbar
-        set guioptions-=r
-        set guioptions-=L
+if has('gui_running')
+    " menu bar
+    set guioptions-=m
+    " toolbar
+    set guioptions-=T
+    " scrollbar
+    set guioptions-=r
+    set guioptions-=L
+else
+    " transparencies in terminal
+    hi Normal guibg=NONE ctermbg=NONE
 endif
