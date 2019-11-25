@@ -192,7 +192,4 @@ if has('gui_running')
     " scrollbar
     set guioptions-=r
     set guioptions-=L
-else
-    " transparencies in terminal
-    hi Normal guibg=NONE ctermbg=NONE
 endif
