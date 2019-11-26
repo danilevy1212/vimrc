@@ -104,8 +104,15 @@ set wim=longest,list,full
 " Squeeze extra spaces (evil-lion)
 let b:lion_squeeze_spaces=1
 
-" tabspaces
+"" tabspaces (For all filetypes, unless specified)
+" The width of a TAB is set to 4.
 set tabstop=4
+" Indents will have a width of 4.
+set shiftwidth=4
+" Sets the number of columns for a TAB.
+set softtabstop=4
+" Expand TABs to spaces.
+set expandtab
 
 " Use ag for Gsearch 
 set grepprg=ag
