@@ -65,6 +65,9 @@ Plug 'skwp/greplace.vim'
 " Git diff within the buffer
 Plug 'airblade/vim-gitgutter'
 
+" File browser
+Plug 'scrooloose/nerdtree'
+
 "" Initialize plugin system
 call plug#end()
 
@@ -121,6 +124,10 @@ let g:grep_cmd_opts = '--line-numbers --noheading'
 " augment the default foldtext() with an indicator of whether the folded lines have been changed.
 set foldtext=gitgutter#fold#foldtext()
 
+" Open NERDtree automatically when vim starts up if no files were specified
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+
 """ Key Bindings
 " Space as leader key
 let mapleader=" "
@@ -130,6 +137,9 @@ nnoremap <C-l> :nohl<CR><C-l>
 
 " Look for a file
 nnoremap <silent> <Leader>f :Files<CR>
+
+" Open file browser
+map <Leader>e :NERDTreeToggle<CR>
 
 " replace 'f' with 1-char Sneak
 nmap f <Plug>Sneak_f
