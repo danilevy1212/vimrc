@@ -177,6 +177,10 @@ nmap ghu <Plug>(GitGutterUndoHunk)
 " g-based hunk previews
 nmap ghp <Plug>(GitGutterPreviewHunk)
 
+" Screen splitting preferences
+set splitbelow
+set splitright
+
 """ Presentation
 " 24-bit color
 set termguicolors
