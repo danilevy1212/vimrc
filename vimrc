@@ -9,6 +9,9 @@ endif
 " Plugin declaration begin
 call plug#begin('~/.vim/plugged')
 
+" Test engine for vim
+Plug 'junegunn/vader.vim'
+
 " Vim Surround
 Plug 'tpope/vim-surround'
 
@@ -103,6 +106,9 @@ Plug 'mhinz/vim-startify'
 " Ale GoToDefinitions
 Plug 'dense-analysis/ale'
 
+" Easymotion
+Plug 'easymotion/vim-easymotion' 
+
 " Initialize plugin system
 call plug#end()
 
@@ -123,8 +129,13 @@ filetype plugin indent on
 " turn hybrid-relative line numbers on
 set nu rnu
 
-" turn of hybrid-relative line numbers in terminal
-au TermOpen * setlocal nonumber norelativenumber
+" Terminal settings
+if has('nvim')
+  augroup term_settings
+    autocmd!
+    autocmd TermOpen * setlocal nonumber norelativenumber clipboard+=unnamedplus
+  augroup END
+endif
 
 " Encoding
 set encoding=utf-8
@@ -138,6 +149,11 @@ set ttyfast
 " Enable incrsearch
 set is
 
+" Enable command preview (nvim)
+if has('nvim')
+  set inccommand="nosplit"
+endif
+
 " AutoComplete commands
 set wmnu
 set wim=longest,list,full
@@ -145,22 +161,19 @@ set wim=longest,list,full
 " Provides tab-completion for all file-related tasks
 set path+=**
 
-" Help is a vertical buffer
-augroup vimrc_help
-  autocmd!
-  autocmd BufEnter *.txt if &buftype == 'help' | wincmd L | endif
-augroup END
+" Saves the buffer whenever text is changed FIXME
+" autocmd TextChanged,TextChangedI <buffer> silent write
 
 " Squeeze extra spaces (evil-lion)
 let b:lion_squeeze_spaces=1
 
 "" tabspaces (For all filetypes, unless specified)
 " The width of a TAB is set to 4.
-set tabstop=4
+set tabstop=2
 " Indents will have a width of 4.
-set shiftwidth=4
+set shiftwidth=2
 " Sets the number of columns for a TAB.
-set softtabstop=4
+set softtabstop=2
 " Expand TABs to spaces.
 set expandtab
 
@@ -193,12 +206,12 @@ let g:jedi#completions_enabled=0
 let g:jedi#show_call_signatures=1
 
 " open the go-to function in split, not another buffer
-let g:jedi#use_splits_not_buffers = "right"
+let g:jedi#use_splits_not_buffers="right"
 
 " make space in cmnd line
 set noshowmode
 
-" Ranger
+"" Ranger
 " Custom command
 let g:ranger_command_override='ranger --cmd "set show_hidden=true"'
 
@@ -212,19 +225,95 @@ let g:ranger_replace_netrw=1
 let g:ale_completion_enabled=0
 let g:ale_completion_max_suggestions=0
 
-""" Keybindings
+"" Exercisim Help function
+function! s:exercism_tests()
+  if expand('%:e') == 'vim'
+    let testfile = printf('%s/%s.vader', expand('%:p:h'),
+          \ tr(expand('%:p:h:t'), '-', '_'))
+    if !filereadable(testfile)
+      echoerr 'File does not exist: '. testfile
+      return
+    endif
+    source %
+    execute 'Vader' testfile
+  else
+    let sourcefile = printf('%s/%s.vim', expand('%:p:h'),
+          \ tr(expand('%:p:h:t'), '-', '_'))
+    if !filereadable(sourcefile)
+      echoerr 'File does not exist: '. sourcefile
+      return
+    endif
+    execute 'source' sourcefile
+    Vader
+  endif
+endfunction
+
+autocmd BufRead *.{vader,vim}
+      \ command! -buffer Test call s:exercism_tests()
+
+"" Ale 
+" Disable ale for python files
+let g:ale_pattern_options = {
+\   '\.py$': {
+\       'ale_enabled': 0
+\   },
+\}
+
+" Vue and typescript
+let g:ale_linters = {
+\   'javascript': ['eslint'],
+\   'typescript': ['tsserver', 'tslint'],
+\   'vue': ['eslint', 'vls']
+\}
+
+let g:ale_fixers = {
+\    'javascript': ['eslint'],
+\    'typescript': ['prettier'],
+\    'vue': ['eslint'],
+\    'scss': ['prettier'],
+\    'html': ['prettier']
+\}
+
+""" Startify
+let g:startify_bookmarks = [ '~/.vim/vimrc', '~/.config/zsh/.zshrc' ]
+
+"""  Keybindings
 " Map leader key to space
 let mapleader=" "
 
 " CTRL + l to unhighlight text
 nnoremap <C-l> :nohl<CR><C-l>
 
-" Look for a file
+""Terminal
+if has('nvim')
+  " Call the terminal on another window
+  nnoremap <Leader>t :vsplit term://zsh<CR>i
+
+  " Call terminal in same window
+  nnoremap <Leader>T :terminal<CR>i
+
+  " Alias to get into normal mode
+  tnoremap <C-v><Esc> <C-\><C-n>
+
+  " Paste to terminal
+  tnoremap <M-r> <C-\><C-n>"+pi 
+endif
+
+"" FZF 
+"Look for a file
 nnoremap <silent> <Leader>f :Files<CR>
 
-" Open file browser (Ranger)
+" Alt x shows commands (like emacs)
+noremap <M-x> :Commands<CR>^
+
+" Buffer list
+noremap <Leader>bb :Buffers<CR>^
+
+"" Ranger
+"Open file browser (Ranger)
 map <Leader>e :Ranger<CR>
 
+"" Vim-sneak
 " replace 'f' with 1-char Sneak
 nmap f <Plug>Sneak_f
 nmap F <Plug>Sneak_F
@@ -240,6 +329,11 @@ xmap T <Plug>Sneak_T
 omap t <Plug>Sneak_t
 omap T <Plug>Sneak_T
 
+"" Easymotion
+" vim-sneak like keybindings
+nmap <Leader><Leader>s <Plug>(easymotion-f2)
+nmap <Leader><Leader>S <Plug>(easymotion-F2)
+
 "" vim-gitgutter
 " Remove default keybindings
 let g:gitgutter_map_keys=0
@@ -249,8 +343,8 @@ nmap ]h <Plug>(GitGutterNextHunk)
 nmap [h <Plug>(GitGutterPrevHunk)
 
 " Hunk text objects
-omap ih <Plug>(GitGutterTextObjectInnerPending)
-omap ah <Plug>(GitGutterTextObjectOuterPending)
+onoremap ih <Plug>(GitGutterTextObjectInnerPending)
+onoremap ah <Plug>(GitGutterTextObjectOuterPending)
 xmap ih <Plug>(GitGutterTextObjectInnerVisual)
 xmap ah <Plug>(GitGutterTextObjectOuterVisual)
 
@@ -280,8 +374,15 @@ function! s:check_back_space() abort
     return !col || getline('.')[col - 1]  =~ '\s'
 endfunction
 
+"" Prettier 
+nmap <Leader>p <Plug>(PrettierPartial)
+
 "" Ale Keybindings
-nmap <Leader>d <Plug>(ale_go_to_definition_in_vsplit)
+" Go to definition
+nnoremap <Leader>d <Plug>(ale_go_to_definition_in_vsplit)
+
+" Go to documentation
+nnoremap <silent> <K> <Plug>(ale_documentation)
 
 "" Presentation
 " 24-bit color
@@ -313,6 +414,9 @@ set guioptions-=e
 " remember tabs in sessions
 set sessionoptions+=tabpages,globals
 
+" Split windows below or on the right
+set splitbelow splitright
+
 " gvim only
 if has('gui_running')
     " menu bar
@@ -324,20 +428,3 @@ if has('gui_running')
     set guioptions-=L
 endif
 
-""" Programming languages special options
-"" Python
-au Filetype python set
-    \ tabstop=4
-    \ softtabstop=4
-    \ shiftwidth=4
-    \ textwidth=79
-    \ expandtab
-    \ autoindent
-    \ fileformat=unix
-
-" Disable ale for python files
-let g:ale_pattern_options = {
-\   '\.py$': {
-\       'ale_enabled': 0
-\   },
-\}
