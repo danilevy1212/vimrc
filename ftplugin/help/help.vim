@@ -1,5 +1,5 @@
 " Q for quitting help buffer
-nnoremap <buffer> q :q <CR>
+nnoremap <buffer> q :q<CR>
 
 " Help is a vertical buffer
 augroup vimrc_help

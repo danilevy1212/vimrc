@@ -56,7 +56,7 @@ Plug 'junegunn/fzf', { 'dir': (expand($XDG_CONFIG_HOME) . '/fzf'), 'do': './inst
 " FZF integration (requires fzf installed)
 Plug 'junegunn/fzf.vim'
 
-if has('nvim') == 0 
+if has('nvim') == 0
   " Preview substitutions (:OverCommandLine)
   Plug 'osyo-manga/vim-over'
 endif
@@ -82,19 +82,17 @@ Plug 'jiangmiao/auto-pairs'
 " Jedi for python docs
 Plug 'davidhalter/jedi-vim'
 
-" Completion Engine
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-
-" Intellij Integration
-if has('nvim')
-    Plug 'beeender/Comrade'
-else
-    Plug 'roxma/nvim-yarp'
-    Plug 'roxma/vim-hug-neovim-rpc'
-endif
-
 " Better tab management
 Plug 'gcmt/taboo.vim'
+
+" Project structure visualizer
+Plug 'preservim/nerdtree'
+
+" NERDTree is git aware
+Plug 'Xuyuanp/nerdtree-git-plugin'
+
+" Cool icons
+Plug 'ryanoasis/vim-devicons'
 
 " Ranger in vim
 Plug 'francoiscabrol/ranger.vim'
@@ -108,11 +106,11 @@ Plug 'Shougo/echodoc.vim'
 " Fancy starting screen
 Plug 'mhinz/vim-startify'
 
-" Ale GoToDefinitions
-Plug 'dense-analysis/ale'
-
 " Easymotion
-Plug 'easymotion/vim-easymotion' 
+Plug 'easymotion/vim-easymotion'
+
+" coc.nvim
+Plug 'neoclide/coc.nvim', { 'branch': 'release' }
 
 " Initialize plugin system
 call plug#end()
@@ -132,7 +130,10 @@ syntax on
 filetype plugin indent on
 
 " turn hybrid-relative line numbers on
-set nu rnu
+set number relativenumber
+
+" if a pattern contains an uppercase letter, it is case sensitive, otherwise, it is
+set ignorecase smartcase
 
 " Terminal settings
 if has('nvim')
@@ -151,8 +152,8 @@ set wrap
 " Speed up scrolling in Vim
 set ttyfast
 
-" Enable incrsearch
-set is
+" Enable incremental search
+set incsearch
 
 " Enable command preview (nvim)
 if has('nvim')
@@ -166,11 +167,12 @@ set wim=longest,list,full
 " Provides tab-completion for all file-related tasks
 set path+=**
 
+" %#&* swap files
+set noswapfile
+set nobackup
+
 " Saves the buffer whenever text is changed FIXME
 " autocmd TextChanged,TextChangedI <buffer> silent write
-
-" Squeeze extra spaces (evil-lion)
-let b:lion_squeeze_spaces=1
 
 "" tabspaces (For all filetypes, unless specified)
 " The width of a TAB is set to 4.
@@ -182,19 +184,24 @@ set softtabstop=2
 " Expand TABs to spaces.
 set expandtab
 
-" Use ag for Gsearch
+" Use the silver searcher for grep search
 set grepprg=ag
 let g:grep_cmd_opts='--line-numbers --noheading'
 
+" include signature
+set completeopt=menuone,noselect
+
+" make space in cmd line
+set noshowmode
+set cmdheight=2
+
+"" Git Gutter
 " augment the default foldtext() with an indicator of whether the folded lines have been changed.
 set foldtext=gitgutter#fold#foldtext()
 
-"" Deoplate
-" start automatically
-let g:deoplete#enable_at_startup=1
-
-" include signature
-set completeopt+=preview
+"" Lion
+"Squeeze extra spaces (evil-lion)
+let b:lion_squeeze_spaces=1
 
 "" Echodoc
 " Enabled by default
@@ -202,19 +209,6 @@ let g:echodoc_enable_at_startup=1
 
 " Cool virtual docstring
 let g:echodoc#type = 'virtual'
-
-" Jedi
-" Disable autocompletion, cause we use deoplete for completion
-let g:jedi#completions_enabled=0
-
-" show call signature
-let g:jedi#show_call_signatures=1
-
-" open the go-to function in split, not another buffer
-let g:jedi#use_splits_not_buffers="right"
-
-" make space in cmnd line
-set noshowmode
 
 "" Ranger
 " Custom command
@@ -226,11 +220,24 @@ let g:ranger_map_keys=0
 " Open ranger when vim opens a directory
 let g:ranger_replace_netrw=1
 
-" Disable ale completion FIXME: Make it file specific
-let g:ale_completion_enabled=0
-let g:ale_completion_max_suggestions=0
+"" NERDTree
+" CWD when using :NERDTreeFind
+let g:NERDTreeChDirMode=2
 
-"" Exercisim Help function
+" Hide help text
+let g:NERDTreeMinimalUI=1
+
+" Auto delete a buffer I changed with NERDTree
+let g:NERDTreeAutoDeleteBuffer=1
+
+" Show hidden files
+let g:NERDTreeShowHidden=1
+
+" Where to keep bookmarks file
+let g:NERDTreeBookmarksFile=expand($XDG_DATA_HOME) . "/NERDTreeBookmarks"
+
+"" Exercisim
+" Help function
 function! s:exercism_tests()
   if expand('%:e') == 'vim'
     let testfile = printf('%s/%s.vader', expand('%:p:h'),
@@ -253,31 +260,9 @@ function! s:exercism_tests()
   endif
 endfunction
 
+" FIXME put this in the ftplugin folder they belong too
 autocmd BufRead *.{vader,vim}
       \ command! -buffer Test call s:exercism_tests()
-
-"" Ale 
-" Disable ale for python files
-let g:ale_pattern_options = {
-\   '\.py$': {
-\       'ale_enabled': 0
-\   },
-\}
-
-" Vue and typescript
-let g:ale_linters = {
-\   'javascript': ['eslint'],
-\   'typescript': ['tsserver', 'tslint'],
-\   'vue': ['eslint', 'vls']
-\}
-
-let g:ale_fixers = {
-\    'javascript': ['eslint'],
-\    'typescript': ['prettier'],
-\    'vue': ['eslint'],
-\    'scss': ['prettier'],
-\    'html': ['prettier']
-\}
 
 """ Startify
 let g:startify_bookmarks = [ expand('$MYVIMRC'), join([expand('$XDG_CONFIG_HOME'),'/zsh/.zshrc'],'')]
@@ -288,6 +273,9 @@ let mapleader=" "
 
 " CTRL + l to unhighlight text
 nnoremap <C-l> :nohl<CR><C-l>
+
+" Quickly exit insert mode
+inoremap jk <esc>
 
 "" Terminal
 if has('nvim')
@@ -301,7 +289,7 @@ if has('nvim')
   tnoremap <C-v><Esc> <C-\><C-n>
 
   " Paste to terminal
-  tnoremap <M-r> <C-\><C-n>"+pi 
+  tnoremap <M-r> <C-\><C-n>"+pi
 endif
 
 " Open my vimrc
@@ -310,9 +298,9 @@ nnoremap <leader>pp :vsplit $MYVIMRC<CR>
 " Reload my vimrc
 nnoremap <leader>pR :source $MYVIMRC<CR>
 
-"" FZF 
+"" FZF
 "Look for a file
-nnoremap <silent> <Leader>f :Files<CR>
+nnoremap <silent> <Leader>ff :Files<CR>
 
 " Alt x shows commands (like emacs)
 noremap <M-x> :Commands<CR>^
@@ -321,10 +309,13 @@ noremap <M-x> :Commands<CR>^
 noremap <Leader>bb :Buffers<CR>^
 
 "" Ranger
-"Open file browser (Ranger)
-map <Leader>e :Ranger<CR>
+" Open file browser (Ranger)
+nnoremap <M-z> :Ranger<CR>
 
-"" Vim-sneak
+"" NERDTree
+nnoremap <Leader>pe :NERDTreeToggleVCS<CR>
+
+" Vim-sneak
 " replace 'f' with 1-char Sneak
 nmap f <Plug>Sneak_f
 nmap F <Plug>Sneak_F
@@ -332,6 +323,7 @@ xmap f <Plug>Sneak_f
 xmap F <Plug>Sneak_F
 omap f <Plug>Sneak_f
 omap F <Plug>Sneak_F
+
 " replace 't' with 1-char Sneak
 nmap t <Plug>Sneak_t
 nmap T <Plug>Sneak_T
@@ -339,6 +331,10 @@ xmap t <Plug>Sneak_t
 xmap T <Plug>Sneak_T
 omap t <Plug>Sneak_t
 omap T <Plug>Sneak_T
+
+" swap repeat keys FIXME Do this for emacs (evil-snipe) too
+map , <Plug>Sneak_;
+map ; <Plug>Sneak_,
 
 "" Easymotion
 " vim-sneak like keybindings
@@ -366,54 +362,47 @@ nmap ghu <Plug>(GitGutterUndoHunk)
 " g-based hunk previews
 nmap ghp <Plug>(GitGutterPreviewHunk)
 
-" Fugitive, git status
+" Fugitive, g_it status
 nnoremap <Leader>gs :Git<cr>
 
-"" Deoplate complition
-inoremap <silent><expr> <TAB>
-            \ pumvisible() ? "\<C-n>" :
-            \ <SID>check_back_space() ? "\<TAB>" :
-            \ deoplete#mappings#manual_complete()
+"" coc.nvim FIXME Keybindings don't work
+" FIXME make it file specific
+" FIXME not good enough for vue files with typescript!
+" Prettier for formating
+command! -nargs=0 Prettier :CocCommand prettier.formatFile
 
-inoremap <silent><expr> <S-TAB>
-            \ pumvisible() ? "\<C-p>" :
-            \ <SID>check_back_space() ? "\<S-TAB>" :
-            \ deoplete#mappings#manual_complete()
+
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+inoremap <silent><expr> <C-space> coc#refresh()
+
+" GoTo code navigation. (<leader>f_ile)
+nmap <leader>fd <Plug>(coc-definition)
+nmap <leader>ft <Plug>(coc-type-definition)
+nmap <leader>fi <Plug>(coc-implementation)
+nmap <leader>fr <Plug>(coc-rename)
+nmap <leader>fn <Plug>(coc-references)
+
+" , current mode commands
+nnoremap <leader>,r :CocRestart<CR>
 
 function! s:check_back_space() abort
     let col = col('.') - 1
     return !col || getline('.')[col - 1]  =~ '\s'
 endfunction
 
-"" Prettier 
-nmap <Leader>p <Plug>(PrettierPartial)
-
-"" Ale Keybindings
-" Go to definition
-nnoremap <Leader>d <Plug>(ale_go_to_definition_in_vsplit)
-
-" Go to documentation
-nnoremap <silent> <K> <Plug>(ale_documentation)
-
 "" Presentation
 " 24-bit color
-set termguicolors
-
-" Colorscheme
-colorscheme onedark
-
-" Airline Theme
-let g:airline_theme='onedark'
-let g:airline#extensions#branch#enabled=1
-let g:airline#extensions#tabline#enabled=1
-let g:airline#extensions#tagbar#enabled=1
-let g:airline_skip_empty_sections=1
+if exists('+termguicolors')
+  set termguicolors
+endif
 
 " Highlight searches
 set hlsearch
-
-" Activate rainbow delimeters
-let g:rainbow_active=1
 
 " Git Gutter Higher refresh rate
 set updatetime=250
@@ -428,6 +417,20 @@ set sessionoptions+=tabpages,globals
 " Split windows below or on the right
 set splitbelow splitright
 
+"" Rainbow paranthesis
+" Activate rainbow delimeters
+let g:rainbow_active=1
+
+"" Colorscheme
+colorscheme onedark
+
+"" Airline Theme
+let g:airline_theme='onedark'
+let g:airline#extensions#branch#enabled=1
+let g:airline#extensions#tabline#enabled=1
+let g:airline#extensions#tagbar#enabled=1
+let g:airline_skip_empty_sections=1
+
 " gvim only
 if has('gui_running')
     " menu bar
@@ -439,3 +442,15 @@ if has('gui_running')
     set guioptions-=L
 endif
 
+" nvim_gui only
+function DisableGUI_TablineAndPopupmenu()
+  if has('nvim') && exists('g:GuiLoaded')
+    GuiTabline 0
+    GuiPopupmenu 0
+  endif
+endfunction
+
+augroup nvim_gui
+  autocmd!
+  autocmd UIEnter * call DisableGUI_TablineAndPopupmenu()
+augroup END
